@@ -12,9 +12,9 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
+        android:id="@+id/nav_deposit"
         android:name="com.example.myapplication.ui.deposit.DepositFragment"
-        android:label="@string/menu_gallery"
+        android:label="@string/menu_deposit"
         tools:layout="@layout/fragment_deposit" />
 
     <fragment
@@ -22,4 +22,12 @@
         android:name="com.example.myapplication.ui.withdraw.WithdrawFragment"
         android:label="@string/menu_withdraw"
         tools:layout="@layout/fragment_withdraw" />
+
+    <fragment
+        android:id="@+id/nav_send"
+        android:name="com.example.myapplication.ui.send.SendFragment"
+        android:label="@string/menu_send"
+        tools:layout="@layout/fragment_send" />
+
+
 </navigation>

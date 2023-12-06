@@ -9,12 +9,16 @@
             android:icon="@drawable/ic_menu_home"
             android:title="@string/menu_home" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_deposit"
             android:icon="@drawable/ic_menu_deposit"
-            android:title="@string/menu_gallery" />
+            android:title="@string/menu_deposit" />
         <item
             android:id="@+id/nav_withdraw"
             android:icon="@drawable/ic_menu_withdraw"
             android:title="@string/menu_withdraw" />
+        <item
+            android:id="@+id/nav_send"
+            android:icon="@drawable/baseline_send_to_mobile_24"
+            android:title="@string/menu_send" />
     </group>
 </menu>
