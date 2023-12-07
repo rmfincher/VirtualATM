@@ -32,6 +32,11 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
 }
 
@@ -48,4 +53,11 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    // Amplify API and Datastore dependencies
+    implementation ("com.amplifyframework:aws-api:2.14.5")
+    implementation ("com.amplifyframework:aws-datastore:2.14.5")
+    implementation ("com.amplifyframework:aws-auth-cognito:2.14.5")
+    implementation ("com.amplifyframework.ui:authenticator:1.0.1")
+    implementation ("androidx.compose.material3:material3:1.1.2")
+
 }

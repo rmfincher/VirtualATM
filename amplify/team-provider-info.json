@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-virtualatm-dev-214018-authRole",
+      "UnauthRoleArn": "arn:aws:iam::406636003997:role/amplify-virtualatm-dev-214018-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::406636003997:role/amplify-virtualatm-dev-214018-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-virtualatm-dev-214018-deployment",
+      "UnauthRoleName": "amplify-virtualatm-dev-214018-unauthRole",
+      "StackName": "amplify-virtualatm-dev-214018",
+      "StackId": "arn:aws:cloudformation:us-east-2:406636003997:stack/amplify-virtualatm-dev-214018/58169ab0-94b2-11ee-9660-0636bc14534b",
+      "AmplifyAppId": "d2dg0hd0px3svb"
+    },
+    "categories": {
+      "api": {
+        "virtualatm": {}
+      },
+      "auth": {
+        "virtualatm79da7402": {}
+      }
+    }
+  }
+}
