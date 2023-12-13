@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.send
 
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,9 @@ import com.amplifyframework.core.Amplify
 import android.util.Log
 import com.amplifyframework.core.model.query.Where
 import com.example.myapplication.databinding.FragmentHomeBinding
+import com.example.myapplication.ui.SharedViewModel
 import com.example.myapplication.ui.home.HomeViewModel
+import java.text.DecimalFormat
 
 class SendFragment : Fragment() {
 
@@ -31,6 +34,10 @@ class SendFragment : Fragment() {
 
     private val binding2 get() = _binding2!!
 
+    private var currentUsername = ""
+
+    private lateinit var sharedViewModel: SharedViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,8 +46,8 @@ class SendFragment : Fragment() {
         val sendViewModel =
             ViewModelProvider(this).get(SendViewModel::class.java)
 
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+        sharedViewModel =
+            ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
 
         _binding = FragmentSendBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -53,52 +60,172 @@ class SendFragment : Fragment() {
             textView.text = it
         }
 
-        val balanceTextView: TextView = root.findViewById(R.id.TextShowBalance)
         val sendButton: Button = root.findViewById(R.id.buttonSend)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
-        val TextShowBalance: TextView = root.findViewById(R.id.TextShowBalance)
         val usernameEditText: EditText = root2.findViewById(R.id.usernameEditText)
 
-        sendViewModel.balance.observe(viewLifecycleOwner) { balance ->
+        sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
+            Log.i("SendFragment", "Balance updated: $newBalance")
             // Update UI with the new balance value
-            balanceTextView.text = "Balance: $balance"
+            val formattedBalance = DecimalFormat("#.##").format(newBalance)
+            binding.TextShowBalance.text = formattedBalance
+        }
+
+        sharedViewModel.username.observe(viewLifecycleOwner) { newUsername ->
+            Log.i("SendFragment", "Username Observed: $newUsername")
+
+            currentUsername = newUsername
         }
 
         sendButton.setOnClickListener {
-            val recipientUsername = recipientEditText.text.toString()
             val fundsAmount = fundsEditText.text.toString().toDouble()
 
-            val exampleRecipient1 = User.builder()
-                .username(recipientUsername)
-                .funds(fundsAmount)
-                .build()
+            // Log User username and funds amount
+            Amplify.DataStore.query(
+                User::class.java,
+                Where.matches(User.USERNAME.eq(currentUsername)),
+                { result ->
+                    if (result.hasNext()) {
+                        val user = result.next()
 
-            Amplify.DataStore.save(
-                exampleRecipient1,
-                { success ->
-                    Log.i("Amplify", "Saved User: $success")
+                        // Access user data
+                        val username = user.username
+                        val funds = user.funds
+
+                        Log.i("Amplify", "Retrieved User Username: $username")
+                        Log.i("Amplify", "Retrieved User Funds: $funds")
+                    } else {
+                        Log.i("Amplify", "Send Fragment (90): User not found")
+                    }
                 },
                 { error ->
-                    Log.e("Amplify", "Error saving User", error)
+                    Log.e("Amplify", "Error querying User", error)
                 }
             )
 
-            val newTransaction = Transaction.builder()
-                .senderUsername(usernameEditText.text.toString())
-                .recipientUsername(recipientUsername)
-                .funds(fundsAmount)
-                .build()
+            // Update Recipient balance data
+            val recipientUsername = recipientEditText.text.toString()
+            val fundsAmountText = fundsEditText.text.toString()
 
-            Amplify.DataStore.save(
-                newTransaction,
-                { success ->
-                    Log.i("Amplify", "Saved Transaction: $success")
-                },
-                { error ->
-                    Log.e("Amplify", "Error saving Transaction", error)
+            // Check if fundsAmountText is not empty before attempting conversion
+            if (fundsAmountText.isNotEmpty()) {
+                try {
+                    val fundsAmount = fundsAmountText.toDouble()
+
+                    val newTransaction = Transaction.builder()
+                        .senderUsername(currentUsername)
+                        .recipientUsername(recipientUsername)
+                        .funds(fundsAmount)
+                        .build()
+
+                    Amplify.DataStore.save(
+                        newTransaction,
+                        { success ->
+                            Log.i("Amplify", "Saved Transaction: $success")
+                        },
+                        { error ->
+                            Log.e("Amplify", "Error saving Transaction", error)
+                        }
+                    )
+
+                    // Update Recipient balance data
+                    Amplify.DataStore.query(
+                        User::class.java,
+                        Where.matches(User.USERNAME.eq(recipientUsername)),
+                        { result ->
+                            if (result.hasNext()) {
+                                val recipientUser = result.next()
+
+                                // Access user data
+                                val recipUsername = recipientUser.username
+                                val recipientFunds = recipientUser.funds
+
+                                Log.i("Amplify", "Retrieved Recipient Username before transfer: $recipUsername")
+                                Log.i("Amplify", "Retrieved Recipient Funds before transfer: $recipientFunds")
+
+                                // Update recipientFunds based on the fundsAmount
+                                val newRecipientFunds = recipientFunds + fundsAmount
+
+                                val updatedRecipientUser = recipientUser.copyOfBuilder()
+                                    .funds(newRecipientFunds)
+                                    .build()
+
+                                Amplify.DataStore.save(
+                                    updatedRecipientUser,
+                                    { success ->
+                                        Log.i("Amplify", "Updated Recipient Funds: $newRecipientFunds")
+                                    },
+                                    { error ->
+                                        Log.e("Amplify", "Error updating Recipient Funds", error)
+                                    }
+                                )
+
+                                // Log the updated recipient funds
+                                Log.i("Amplify", "Updated Recipient Funds: $newRecipientFunds")
+
+                            } else {
+                                Log.i("Amplify", "Recipient not found")
+                            }
+                        },
+                        { error ->
+                            Log.e("Amplify", "Error querying Recipient", error)
+                        }
+                    )
+
+                    // update user balance data
+                    Amplify.DataStore.query(
+                        User::class.java,
+                        Where.matches(User.USERNAME.eq(currentUsername)),
+                        { result ->
+                            if (result.hasNext()) {
+                                val user1 = result.next()
+
+                                // Access user data
+                                val user1Name = user1.username
+                                val userFunds = user1.funds
+
+                                Log.i("Amplify", "Retrieved Recipient Username before transfer: $user1Name")
+                                Log.i("Amplify", "Retrieved Recipient Funds before transfer: $userFunds")
+
+                                // Update recipientFunds based on the fundsAmount
+                                val newUserFunds = userFunds + fundsAmount
+
+                                val updatedUser = user1.copyOfBuilder()
+                                    .funds(newUserFunds)
+                                    .build()
+
+                                Amplify.DataStore.save(
+                                    updatedUser,
+                                    { success ->
+                                        Log.i("Amplify", "Updated User Funds: $newUserFunds")
+                                    },
+                                    { error ->
+                                        Log.e("Amplify", "Error updating User Funds", error)
+                                    }
+                                )
+
+                                // Log the updated user funds
+                                Log.i("Amplify", "Updated User Funds: $newUserFunds")
+
+                            } else {
+                                Log.i("Amplify", "User not found")
+                            }
+                        },
+                        { error ->
+                            Log.e("Amplify", "Error querying User", error)
+                        }
+                    )
+
+
+                } catch (e: NumberFormatException) {
+                    Log.e("Amplify", "Error converting funds amount to Double", e)
+                    // Handle the case where the text cannot be converted to a Double
                 }
-            )
+            } else {
+                // Handle the case where fundsAmountText is empty
+                Log.e("Amplify", "Funds amount is empty")
+            }
         }
         return root
     }

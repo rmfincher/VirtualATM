@@ -17,19 +17,17 @@ import com.amplifyframework.auth.AuthUserAttributeKey
 import android.util.Log
 import com.amplifyframework.core.model.query.Where
 import com.amplifyframework.datastore.generated.model.User
-import com.example.myapplication.databinding.FragmentSendBinding
-import com.example.myapplication.ui.send.SendViewModel
-import java.lang.Thread.sleep
+import com.example.myapplication.ui.SharedViewModel
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    private var _binding2: FragmentSendBinding? = null
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private lateinit var sharedViewModel: SharedViewModel
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -39,6 +37,10 @@ class HomeFragment : Fragment() {
         val homeViewModel =
                 ViewModelProvider(this).get(HomeViewModel::class.java)
 
+        sharedViewModel =
+            ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+
+
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -47,6 +49,7 @@ class HomeFragment : Fragment() {
             textView.text = it
         }
 
+        // Home View Model values
         val signUpButton: Button = root.findViewById(R.id.signUpButton)
         val signInButton: Button = root.findViewById(R.id.signInButton)
         val verifyCodeButton: Button = root.findViewById(R.id.verifyCodeButton)
@@ -57,42 +60,65 @@ class HomeFragment : Fragment() {
 
         // Implementing Sign-Up Button logic with Amplify
         signUpButton.setOnClickListener {
-            val options = AuthSignUpOptions.builder()
-                .userAttribute(AuthUserAttributeKey.email(), emailEditText.text.toString())
-                .build()
-            Amplify.Auth.signUp(usernameEditText.text.toString(), passwordEditText.text.toString(), options,
-                { Log.i("AuthQuickStart", "Sign up succeeded: $it") },
-                { Log.e ("AuthQuickStart", "Sign up failed", it) }
-            )
 
-            // Wait for user to receive authentication code in email and enter (60 seconds)
-            verifyCodeButton.setOnClickListener {
-                Amplify.Auth.confirmSignUp(
-                    usernameEditText.text.toString(), authCodeEditText.text.toString(),
-                    { result ->
-                        if (result.isSignUpComplete) {
-                            Log.i("AuthQuickstart", "Confirm signUp succeeded")
-                        } else {
-                            Log.i("AuthQuickstart","Confirm sign up not complete")
+            // Check if the user with the given username already exists, if not -> create user
+            Amplify.DataStore.query(
+                User::class.java,
+                Where.matches(User.USERNAME.eq(usernameEditText.text.toString())),
+                { result ->
+                    if (result.hasNext()) {
+                        // User with the same username already exists
+                        Log.i("Amplify", "User with the username already exists")
+                    } else {
+                        // User does not exist, proceed with creating and saving a new user
+
+                        val options = AuthSignUpOptions.builder()
+                            .userAttribute(AuthUserAttributeKey.email(), emailEditText.text.toString())
+                            .build()
+                        Amplify.Auth.signUp(usernameEditText.text.toString(), passwordEditText.text.toString(), options,
+                            { Log.i("AuthQuickStart", "Sign up succeeded: $it") },
+                            { Log.e ("AuthQuickStart", "Sign up failed", it) }
+                        )
+
+                        // Wait for user to receive authentication code in email and enter (60 seconds)
+                        verifyCodeButton.setOnClickListener {
+                            Amplify.Auth.confirmSignUp(
+                                usernameEditText.text.toString(), authCodeEditText.text.toString(),
+                                { result ->
+                                    if (result.isSignUpComplete) {
+                                        Log.i("AuthQuickstart", "Confirm signUp succeeded")
+                                    } else {
+                                        Log.i("AuthQuickstart","Confirm sign up not complete")
+                                    }
+                                },
+                                { Log.e("AuthQuickstart", "Failed to confirm sign up", it) }
+                            )
                         }
-                    },
-                    { Log.e("AuthQuickstart", "Failed to confirm sign up", it) }
-                )
-            }
 
-            // Create user in database
-            val createdUser = User.builder()
-                .username(usernameEditText.text.toString())
-                .funds(100.0)
-                .build()
+                        val createdUser = User.builder()
+                            .username(usernameEditText.text.toString())
+                            .funds(100.0)
+                            .build()
 
-            Amplify.DataStore.save(
-                createdUser,
-                { success ->
-                    Log.i("Amplify", "Saved User: $success")
+                        Amplify.DataStore.save(
+                            createdUser,
+                            { success ->
+                                Log.i("Amplify", "Saved User: $success")
+                            },
+                            { error ->
+                                Log.e("Amplify", "Error saving User", error)
+                            }
+                        )
+
+                        try {
+                            sharedViewModel.updateUsername(usernameEditText.text.toString())
+                        } catch (e: Exception) {
+                            Log.e("HomeFragment", "Error updating username", e)
+                        }
+                    }
                 },
                 { error ->
-                    Log.e("Amplify", "Error saving User", error)
+                    Log.e("Amplify", "Error querying User", error)
                 }
             )
         }
@@ -121,8 +147,15 @@ class HomeFragment : Fragment() {
                         val username = user.username
                         val funds = user.funds
 
-                        Log.i("Amplify", "Retrieved User Data: $user")
+                        Log.i("Amplify", "Retrieved User Username: $username")
                         Log.i("Amplify", "User Funds: $funds")
+
+                        // update sharedViewModel with new balance to use in SendFragment
+                        try {
+                            sharedViewModel.updateBalance(funds)
+                        } catch (e: Exception) {
+                            Log.e("HomeFragment", "Error updating balance", e)
+                        }
                     } else {
                         Log.i("Amplify", "User not found")
                     }
@@ -131,8 +164,6 @@ class HomeFragment : Fragment() {
                     Log.e("Amplify", "Error querying User", error)
                 }
             )
-
-
         }
 
         return root
