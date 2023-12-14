@@ -185,11 +185,17 @@ class SendFragment : Fragment() {
                                 val user1Name = user1.username
                                 val userFunds = user1.funds
 
-                                Log.i("Amplify", "Retrieved Recipient Username before transfer: $user1Name")
-                                Log.i("Amplify", "Retrieved Recipient Funds before transfer: $userFunds")
+                                Log.i("Amplify", "Retrieved User Username before transfer: $user1Name")
+                                Log.i("Amplify", "Retrieved User Funds before transfer: $userFunds")
 
-                                // Update recipientFunds based on the fundsAmount
-                                val newUserFunds = userFunds + fundsAmount
+                                // Update userFunds based on the fundsAmount
+                                val newUserFunds = userFunds - fundsAmount
+
+                                try {
+                                    sharedViewModel.updateBalance(newUserFunds)
+                                } catch (e: Exception) {
+                                    Log.e("HomeFragment", "Error updating balance", e)
+                                }
 
                                 val updatedUser = user1.copyOfBuilder()
                                     .funds(newUserFunds)
