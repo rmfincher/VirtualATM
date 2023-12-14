@@ -50,6 +50,9 @@ App login and account creation is implemented. App asks user for email, username
 ### Version 1.6
 Send functionality is implemented into app. Send fragment asks user for the name of the recipient and the amount they want to send. User data is stored and computed with money being subtracted from the sender and added to the receiver.
 
+## Member Onboarding
+https://docs.google.com/document/d/1LrTm0KhTUUCn_jdvhE4MD72ykRmrL_FHJRNwCLWNzXQ/edit?usp=sharing
+
 
 
 
