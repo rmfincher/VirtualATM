@@ -75,6 +75,11 @@ jobs:
     #     echo "Run, Build Application using script"
     #     ./location_of_script_within_repo/buildscript.sh
 
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt@1.17'
+
     - run: |
         ./gradlew build
 
