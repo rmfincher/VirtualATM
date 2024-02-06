@@ -59,6 +59,7 @@ class SendFragment : Fragment() {
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
         val TextShowBalance: TextView = root.findViewById(R.id.TextShowBalance)
         val usernameEditText: EditText = root2.findViewById(R.id.usernameEditText)
+        val coordsEditText: EditText = root.findViewById(R.id.editTextCoords)
 
         sendViewModel.balance.observe(viewLifecycleOwner) { balance ->
             // Update UI with the new balance value
@@ -68,10 +69,12 @@ class SendFragment : Fragment() {
         sendButton.setOnClickListener {
             val recipientUsername = recipientEditText.text.toString()
             val fundsAmount = fundsEditText.text.toString().toDouble()
+            val userCoords = coordsEditText.text.toString().toDouble()
 
             val exampleRecipient1 = User.builder()
                 .username(recipientUsername)
                 .funds(fundsAmount)
+                //.coords(userCoords)
                 .build()
 
             Amplify.DataStore.save(
@@ -88,6 +91,7 @@ class SendFragment : Fragment() {
                 .senderUsername(usernameEditText.text.toString())
                 .recipientUsername(recipientUsername)
                 .funds(fundsAmount)
+                //.coords(userCoords)
                 .build()
 
             Amplify.DataStore.save(
