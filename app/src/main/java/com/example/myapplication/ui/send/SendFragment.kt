@@ -63,7 +63,6 @@ class SendFragment : Fragment() {
         val sendButton: Button = root.findViewById(R.id.buttonSend)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
-        val usernameEditText: EditText = root2.findViewById(R.id.usernameEditText)
 
         sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
             Log.i("SendFragment", "Balance updated: $newBalance")
@@ -79,7 +78,6 @@ class SendFragment : Fragment() {
         }
 
         sendButton.setOnClickListener {
-            val fundsAmount = fundsEditText.text.toString().toDouble()
 
             // Log User username and funds amount
             Amplify.DataStore.query(

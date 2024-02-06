@@ -15,6 +15,7 @@ import com.amplifyframework.core.Amplify
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.auth.AuthUserAttributeKey
 import android.util.Log
+import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.core.model.query.Where
 import com.amplifyframework.datastore.generated.model.User
 import com.example.myapplication.ui.SharedViewModel
@@ -39,7 +40,6 @@ class HomeFragment : Fragment() {
 
         sharedViewModel =
             ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -95,6 +95,13 @@ class HomeFragment : Fragment() {
                             )
                         }
 
+                        try {
+                            sharedViewModel.updateUsername(usernameEditText.text.toString())
+                        } catch (e: Exception) {
+                            Log.e("HomeFragment", "Error updating username", e)
+                        }
+
+                        // build the user
                         val createdUser = User.builder()
                             .username(usernameEditText.text.toString())
                             .funds(100.0)
@@ -109,12 +116,6 @@ class HomeFragment : Fragment() {
                                 Log.e("Amplify", "Error saving User", error)
                             }
                         )
-
-                        try {
-                            sharedViewModel.updateUsername(usernameEditText.text.toString())
-                        } catch (e: Exception) {
-                            Log.e("HomeFragment", "Error updating username", e)
-                        }
                     }
                 },
                 { error ->
@@ -125,10 +126,50 @@ class HomeFragment : Fragment() {
 
         // Implementing Sign-In Button logic with Amplify
         signInButton.setOnClickListener {
+
+            // sign out user
+            Amplify.Auth.signOut { signOutResult ->
+                when (signOutResult) {
+                    is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
+                        // Sign Out completed fully and without errors.
+                        Log.i("AuthQuickStart", "Signed out successfully")
+                    }
+
+                    is AWSCognitoAuthSignOutResult.PartialSignOut -> {
+                        // Sign Out completed with some errors. User is signed out of the device.
+                        signOutResult.hostedUIError?.let {
+                            Log.e("AuthQuickStart", "HostedUI Error", it.exception)
+                            // Optional: Re-launch it.url in a Custom tab to clear Cognito web session.
+
+                        }
+                        signOutResult.globalSignOutError?.let {
+                            Log.e("AuthQuickStart", "GlobalSignOut Error", it.exception)
+                            // Optional: Use escape hatch to retry revocation of it.accessToken.
+                        }
+                        signOutResult.revokeTokenError?.let {
+                            Log.e("AuthQuickStart", "RevokeToken Error", it.exception)
+                            // Optional: Use escape hatch to retry revocation of it.refreshToken.
+                        }
+                    }
+
+                    is AWSCognitoAuthSignOutResult.FailedSignOut -> {
+                        // Sign Out failed with an exception, leaving the user signed in.
+                        Log.e("AuthQuickStart", "Sign out Failed", signOutResult.exception)
+                    }
+                }
+            }
+
             Amplify.Auth.signIn(usernameEditText.text.toString(), passwordEditText.text.toString(),
                 { result ->
                     if (result.isSignedIn) {
                         Log.i("AuthQuickstart", "Sign in succeeded")
+
+                        try {
+                            sharedViewModel.updateUsername(usernameEditText.text.toString())
+                        } catch (e: Exception) {
+                            Log.e("HomeFragment", "Error updating username", e)
+                        }
+
                     } else {
                         Log.i("AuthQuickstart", "Sign in not complete")
                     }
@@ -136,6 +177,7 @@ class HomeFragment : Fragment() {
                 { Log.e("AuthQuickstart", "Failed to sign in", it) }
             )
 
+            // query for user and show balance on screen
             Amplify.DataStore.query(
                 User::class.java,
                 Where.matches(User.USERNAME.eq(usernameEditText.text.toString())),
