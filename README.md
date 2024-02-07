@@ -21,7 +21,11 @@ cd [project-dir]
 
 amplify pull --appId d2dg0hd0px3svb --envName dev
 
-#### Access key and Secret key will be needed to pull 
+amplify init
+
+#### Access key and Secret key will be needed
+
+amplify push
 
 ### Once data is pulled AndroidStudio IDE will need to be installed:
 https://developer.android.com/studio/install
