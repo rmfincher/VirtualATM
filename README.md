@@ -23,7 +23,9 @@ amplify pull --appId d2dg0hd0px3svb --envName dev
 
 amplify init
 
-#### Access key and Secret key will be needed
+#### Access key and Secret key will be needed ^
+
+amplify add api
 
 amplify push
 
