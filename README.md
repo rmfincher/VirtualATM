@@ -18,6 +18,7 @@ curl -sL https://aws-amplify.github.io/amplify-cli/install | bash && $SHELL
 npm install -g @aws-amplify/cli
 ### Once Amplify is installed you will need to pull the data:
 cd [project-dir]
+
 amplify pull --appId d2dg0hd0px3svb --envName dev
 
 #### Access key and Secret key will be needed to pull 
