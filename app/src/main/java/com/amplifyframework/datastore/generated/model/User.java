@@ -24,9 +24,13 @@ public final class User implements Model {
   public static final QueryField ID = field("User", "id");
   public static final QueryField USERNAME = field("User", "username");
   public static final QueryField FUNDS = field("User", "funds");
+  public static final QueryField LONGITUDE = field("User", "longitude");
+  public static final QueryField LATITUDE = field("User", "latitude");
   private final @ModelField(targetType="ID", isRequired = true) String id;
   private final @ModelField(targetType="String", isRequired = true) String username;
   private final @ModelField(targetType="Float", isRequired = true) Double funds;
+  private final @ModelField(targetType="Float", isRequired = true) Double longitude;
+  private final @ModelField(targetType="Float", isRequired = true) Double latitude;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime createdAt;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime updatedAt;
   /** @deprecated This API is internal to Amplify and should not be used. */
@@ -47,6 +51,14 @@ public final class User implements Model {
       return funds;
   }
   
+  public Double getLongitude() {
+      return longitude;
+  }
+  
+  public Double getLatitude() {
+      return latitude;
+  }
+  
   public Temporal.DateTime getCreatedAt() {
       return createdAt;
   }
@@ -55,10 +67,12 @@ public final class User implements Model {
       return updatedAt;
   }
   
-  private User(String id, String username, Double funds) {
+  private User(String id, String username, Double funds, Double longitude, Double latitude) {
     this.id = id;
     this.username = username;
     this.funds = funds;
+    this.longitude = longitude;
+    this.latitude = latitude;
   }
   
   @Override
@@ -72,6 +86,8 @@ public final class User implements Model {
       return ObjectsCompat.equals(getId(), user.getId()) &&
               ObjectsCompat.equals(getUsername(), user.getUsername()) &&
               ObjectsCompat.equals(getFunds(), user.getFunds()) &&
+              ObjectsCompat.equals(getLongitude(), user.getLongitude()) &&
+              ObjectsCompat.equals(getLatitude(), user.getLatitude()) &&
               ObjectsCompat.equals(getCreatedAt(), user.getCreatedAt()) &&
               ObjectsCompat.equals(getUpdatedAt(), user.getUpdatedAt());
       }
@@ -83,6 +99,8 @@ public final class User implements Model {
       .append(getId())
       .append(getUsername())
       .append(getFunds())
+      .append(getLongitude())
+      .append(getLatitude())
       .append(getCreatedAt())
       .append(getUpdatedAt())
       .toString()
@@ -96,6 +114,8 @@ public final class User implements Model {
       .append("id=" + String.valueOf(getId()) + ", ")
       .append("username=" + String.valueOf(getUsername()) + ", ")
       .append("funds=" + String.valueOf(getFunds()) + ", ")
+      .append("longitude=" + String.valueOf(getLongitude()) + ", ")
+      .append("latitude=" + String.valueOf(getLatitude()) + ", ")
       .append("createdAt=" + String.valueOf(getCreatedAt()) + ", ")
       .append("updatedAt=" + String.valueOf(getUpdatedAt()))
       .append("}")
@@ -118,6 +138,8 @@ public final class User implements Model {
     return new User(
       id,
       null,
+      null,
+      null,
       null
     );
   }
@@ -125,7 +147,9 @@ public final class User implements Model {
   public CopyOfBuilder copyOfBuilder() {
     return new CopyOfBuilder(id,
       username,
-      funds);
+      funds,
+      longitude,
+      latitude);
   }
   public interface UsernameStep {
     FundsStep username(String username);
@@ -133,7 +157,17 @@ public final class User implements Model {
   
 
   public interface FundsStep {
-    BuildStep funds(Double funds);
+    LongitudeStep funds(Double funds);
+  }
+  
+
+  public interface LongitudeStep {
+    LatitudeStep longitude(Double longitude);
+  }
+  
+
+  public interface LatitudeStep {
+    BuildStep latitude(Double latitude);
   }
   
 
@@ -143,18 +177,22 @@ public final class User implements Model {
   }
   
 
-  public static class Builder implements UsernameStep, FundsStep, BuildStep {
+  public static class Builder implements UsernameStep, FundsStep, LongitudeStep, LatitudeStep, BuildStep {
     private String id;
     private String username;
     private Double funds;
+    private Double longitude;
+    private Double latitude;
     public Builder() {
       
     }
     
-    private Builder(String id, String username, Double funds) {
+    private Builder(String id, String username, Double funds, Double longitude, Double latitude) {
       this.id = id;
       this.username = username;
       this.funds = funds;
+      this.longitude = longitude;
+      this.latitude = latitude;
     }
     
     @Override
@@ -164,7 +202,9 @@ public final class User implements Model {
         return new User(
           id,
           username,
-          funds);
+          funds,
+          longitude,
+          latitude);
     }
     
     @Override
@@ -175,9 +215,23 @@ public final class User implements Model {
     }
     
     @Override
-     public BuildStep funds(Double funds) {
+     public LongitudeStep funds(Double funds) {
         Objects.requireNonNull(funds);
         this.funds = funds;
+        return this;
+    }
+    
+    @Override
+     public LatitudeStep longitude(Double longitude) {
+        Objects.requireNonNull(longitude);
+        this.longitude = longitude;
+        return this;
+    }
+    
+    @Override
+     public BuildStep latitude(Double latitude) {
+        Objects.requireNonNull(latitude);
+        this.latitude = latitude;
         return this;
     }
     
@@ -193,10 +247,12 @@ public final class User implements Model {
   
 
   public final class CopyOfBuilder extends Builder {
-    private CopyOfBuilder(String id, String username, Double funds) {
-      super(id, username, funds);
+    private CopyOfBuilder(String id, String username, Double funds, Double longitude, Double latitude) {
+      super(id, username, funds, longitude, latitude);
       Objects.requireNonNull(username);
       Objects.requireNonNull(funds);
+      Objects.requireNonNull(longitude);
+      Objects.requireNonNull(latitude);
     }
     
     @Override
@@ -207,6 +263,16 @@ public final class User implements Model {
     @Override
      public CopyOfBuilder funds(Double funds) {
       return (CopyOfBuilder) super.funds(funds);
+    }
+    
+    @Override
+     public CopyOfBuilder longitude(Double longitude) {
+      return (CopyOfBuilder) super.longitude(longitude);
+    }
+    
+    @Override
+     public CopyOfBuilder latitude(Double latitude) {
+      return (CopyOfBuilder) super.latitude(latitude);
     }
   }
   
