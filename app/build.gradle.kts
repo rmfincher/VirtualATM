@@ -60,5 +60,7 @@ dependencies {
     implementation ("com.amplifyframework:aws-auth-cognito:2.14.5")
     implementation ("com.amplifyframework.ui:authenticator:1.0.1")
     implementation ("androidx.compose.material3:material3:1.1.2")
+    // Fused API
+    implementation ("com.google.android.gms:play-services-location:17.0.0")
 
 }
