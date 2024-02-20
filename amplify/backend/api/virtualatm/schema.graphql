@@ -8,13 +8,6 @@ enum Priority {
   HIGH
 }
 
-type Todo @model @auth(rules: [{ allow: public }]) {
-  id: ID!
-  name: String!
-  priority: Priority!
-  completedAt: AWSDateTime
-}
-
 type Transaction @model {
   id: ID!
   senderUsername: String!
@@ -26,4 +19,6 @@ type User @model {
   id: ID!
   username: String!
   funds: Float!
+  longitude: Float!
+  latitude: Float!
 }
