@@ -105,6 +105,8 @@ class HomeFragment : Fragment() {
                         val createdUser = User.builder()
                             .username(usernameEditText.text.toString())
                             .funds(100.0)
+                            .longitude(0.0)
+                            .latitude(0.0)
                             .build()
 
                         Amplify.DataStore.save(
