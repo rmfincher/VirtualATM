@@ -20,6 +20,7 @@ import com.amplifyframework.core.model.query.Where
 import com.amplifyframework.datastore.generated.model.User
 import com.example.myapplication.ui.SharedViewModel
 
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -57,6 +58,15 @@ class HomeFragment : Fragment() {
         val usernameEditText: TextView = root.findViewById(R.id.usernameEditText)
         val passwordEditText: TextView = root.findViewById(R.id.passwordEditText)
         val authCodeEditText: TextView = root.findViewById(R.id.authCodeEditText)
+
+        val signOutButton: Button = root.findViewById(R.id.signOutButton)
+
+       signOutButton.setOnClickListener {
+            Amplify.Auth.signOut(
+                //AuthSignOutOptions.none(),
+                {Log.i("AuthQuickstart", "Sign out succeeded")},
+            )
+        }
 
         // Implementing Sign-Up Button logic with Amplify
         signUpButton.setOnClickListener {
