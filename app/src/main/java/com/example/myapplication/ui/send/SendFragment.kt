@@ -63,6 +63,8 @@ class SendFragment : Fragment() {
         val sendButton: Button = root.findViewById(R.id.buttonSend)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
+        val longitudeEditText: EditText = root.findViewById(R.id.editTextLongitude)
+        val latitudeEditText: EditText = root.findViewById(R.id.editTextLatitude)
 
         sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
             Log.i("SendFragment", "Balance updated: $newBalance")
@@ -78,6 +80,8 @@ class SendFragment : Fragment() {
         }
 
         sendButton.setOnClickListener {
+
+
 
             // Log User username and funds amount
             Amplify.DataStore.query(
@@ -105,6 +109,10 @@ class SendFragment : Fragment() {
             // Update Recipient balance data
             val recipientUsername = recipientEditText.text.toString()
             val fundsAmountText = fundsEditText.text.toString()
+
+            // Update Dropoff Coordinates
+            val userLongitude = longitudeEditText.text.toString().toDouble()
+            val userLatitude = latitudeEditText.text.toString().toDouble()
 
             // Check if fundsAmountText is not empty before attempting conversion
             if (fundsAmountText.isNotEmpty()) {
@@ -197,6 +205,8 @@ class SendFragment : Fragment() {
 
                                 val updatedUser = user1.copyOfBuilder()
                                     .funds(newUserFunds)
+                                    .longitude(userLongitude)
+                                    .latitude(userLatitude)
                                     .build()
 
                                 Amplify.DataStore.save(
