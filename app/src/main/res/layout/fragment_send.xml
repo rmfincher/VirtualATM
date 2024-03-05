@@ -60,8 +60,18 @@
         android:layout_width="389dp"
         android:layout_height="76dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="395dp"
+        android:layout_marginTop="392dp"
         android:hint="Enter Funds to send"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextCoords"
+        android:layout_width="389dp"
+        android:layout_height="76dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="476dp"
+        android:hint="Enter coordinates to send"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,8 +79,8 @@
         android:id="@+id/buttonSend"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginStart="132dp"
-        android:layout_marginBottom="129dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginBottom="108dp"
         android:text="Send Funds"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
