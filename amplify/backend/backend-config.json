@@ -44,5 +44,40 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "function": {
+    "locationcheck": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "virtualatm"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_locationcheck_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "locationcheck"
+        }
+      ]
+    },
+    "AMPLIFY_function_locationcheck_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "locationcheck"
+        }
+      ]
+    }
   }
 }
