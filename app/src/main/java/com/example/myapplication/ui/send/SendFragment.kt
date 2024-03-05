@@ -81,8 +81,6 @@ class SendFragment : Fragment() {
 
         sendButton.setOnClickListener {
 
-
-
             // Log User username and funds amount
             Amplify.DataStore.query(
                 User::class.java,

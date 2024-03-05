@@ -21,7 +21,7 @@
       "function": {
         "locationcheck": {
           "deploymentBucketName": "amplify-virtualatm-dev-214018-deployment",
-          "s3Key": "amplify-builds/locationcheck-2b67725155563649744e-build.zip"
+          "s3Key": "amplify-builds/locationcheck-3770546c616f70636b7a-build.zip"
         }
       }
     }
