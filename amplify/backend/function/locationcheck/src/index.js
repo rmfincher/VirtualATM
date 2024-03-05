@@ -11,38 +11,76 @@ exports.handler = async (event) => {
     for (const record of event.Records) {
       if (record.eventName === 'MODIFY') { // Check if the event is a modification
         const newValues = record.dynamodb.NewImage; // New values in the record
-        
-        // Retrieve location data for user1
-        const user1Params = {
-          TableName: 'User-7pfb2gxhujdghgkp3eotjdjuym-dev',
-          Key: { userId: newValues.userId.S } // Assuming userId is stored as a string
-        };
-        const user1Data = await dynamoDB.get(user1Params).promise();
-        const user1Location = user1Data.Item; // Location data for user1
+
+        // Fetch transaction data outside the try block
+        const transactionData = await fetchTransactionData(newValues.transactionId.S);
+        const senderUsername = transactionData.senderUsername;
+        const recipientUsername = transactionData.recipientUsername;
+        const amountToSend = transactionData.funds;
+
+        // Retrieve location data for sender and receiver from the User table
+        const senderData = await getUserData(senderUsername);
+        const recipientData = await getUserData(recipientUsername);
         
         // Retrieve location data for user2
-        const user2Params = {
-          TableName: 'User-7pfb2gxhujdghgkp3eotjdjuym-dev',
-          Key: { userId: newValues.userId.S } // Assuming userId is stored as a string
-        };
-        const user2Data = await dynamoDB.get(user2Params).promise();
-        const user2Location = user2Data.Item; // Location data for user2
+        const user2Data = await getUserData(newValues.userId.S);
         
         // Check if latitude and longitude values of user2 are within the specified radius of user1
-        const isWithinRadius = checkLocationWithinRadius(user1Location.latitude, user1Location.longitude, user2Location.latitude, user2Location.longitude, radiusInKm);
+        const isWithinRadius = checkLocationWithinRadius(senderData.latitude, senderData.longitude, user2Data.latitude, user2Data.longitude, radiusInKm);
         
-        // Return boolean result indicating whether funds should be updated or not
-        return { shouldUpdateFunds: isWithinRadius };
+        // Update funds if within radius
+        if (isWithinRadius) {
+          await updateFunds(senderData, recipientData, amountToSend);
+        }
       }
     }
-    
-    // Default to not updating funds if no MODIFY event found
-    return { shouldUpdateFunds: false };
   } catch (error) {
     console.error('Error processing DynamoDB record:', error);
     throw error;
   }
 };
+
+// Function to fetch transaction data
+async function fetchTransactionData(transactionId) {
+  const transactionParams = {
+    TableName: 'Transaction-7pfb2gxhujdghgkp3eotjdjuym-dev',
+    Key: { transactionId: transactionId }
+  };
+  const transactionData = await dynamoDB.get(transactionParams).promise();
+  return transactionData.Item;
+}
+
+// Function to fetch user data from the User table
+async function getUserData(username) {
+  const userParams = {
+    TableName: 'User-7pfb2gxhujdghgkp3eotjdjuym-dev',
+    Key: { username: username }
+  };
+  const userData = await dynamoDB.get(userParams).promise();
+  return userData.Item;
+}
+
+// Function to update funds in DynamoDB table
+async function updateFunds(senderData, recipientData, amountToSend) {
+  const senderParams = {
+    TableName: 'User-7pfb2gxhujdghgkp3eotjdjuym-dev',
+    Key: { userId: senderData.userId }
+  };
+  const recipientParams = {
+    TableName: 'User-7pfb2gxhujdghgkp3eotjdjuym-dev',
+    Key: { userId: recipientData.userId }
+  };
+  
+  // Adjust funds accordingly (assuming funds are stored as numeric attributes in the table)
+  senderData.funds -= amountToSend;
+  recipientData.funds += amountToSend;
+
+  // Update funds in the table
+  await Promise.all([
+    dynamoDB.update(senderParams).promise(),
+    dynamoDB.update(recipientParams).promise()
+  ]);
+}
 
 // Function to check if latitude and longitude are within a certain radius
 function checkLocationWithinRadius(user1Latitude, user1Longitude, user2Latitude, user2Longitude, radiusInKm) {
