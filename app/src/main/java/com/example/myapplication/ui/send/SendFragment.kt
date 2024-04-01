@@ -21,6 +21,8 @@ import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.ui.SharedViewModel
 import com.example.myapplication.ui.home.HomeViewModel
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class SendFragment : Fragment() {
 
@@ -58,11 +60,18 @@ class SendFragment : Fragment() {
         val textView: TextView = binding.textSend
         sendViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
+
         }
 
         val sendButton: Button = root.findViewById(R.id.buttonSend)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
+        val usernameEditText: EditText = root2.findViewById(R.id.usernameEditText)
+
+        val dateFilterButton: Button = root.findViewById(R.id.buttonFilter)
+        dateFilterButton.setOnClickListener {
+            showTransactionsByDate()
+        }
 
         sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
             Log.i("SendFragment", "Balance updated: $newBalance")
@@ -78,6 +87,7 @@ class SendFragment : Fragment() {
         }
 
         sendButton.setOnClickListener {
+            val fundsAmount = fundsEditText.text.toString().toDouble()
 
             // Log User username and funds amount
             Amplify.DataStore.query(
@@ -230,8 +240,37 @@ class SendFragment : Fragment() {
                 // Handle the case where fundsAmountText is empty
                 Log.e("Amplify", "Funds amount is empty")
             }
+            showTransactionsByDate()
         }
         return root
+    }
+
+    private fun showTransactionsByDate() {
+        val currentDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
+
+        Amplify.DataStore.query(
+            Transaction::class.java,
+            Where.matches(Transaction.date.eq(currentDate)),
+            { result ->
+                while (result.hasNext()) {
+                    val transaction = result.next()
+
+                    val senderUsername = transaction.senderUsername
+                    val recipientUsername = transaction.recipientUsername
+                    val fundsAmount = transaction.funds
+                    val transactionDate = transaction.date
+
+                    Log.i("Amplify", "Transaction - Sender: $senderUsername, Recipient: $recipientUsername, Funds: $fundsAmount, Date: $transactionDate")
+                }
+
+                if (!result.hasNext()) {
+                    Log.i("Amplify", "No transactions found for the selected date.")
+                }
+            },
+            { error ->
+                Log.e("Amplify", "Error querying transactions by date", error)
+            }
+        )
     }
 
     override fun onDestroyView() {
@@ -239,3 +278,4 @@ class SendFragment : Fragment() {
         _binding = null
     }
 }
+
