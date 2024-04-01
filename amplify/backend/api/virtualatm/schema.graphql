@@ -13,6 +13,7 @@ type Transaction @model {
   senderUsername: String!
   recipientUsername: String!
   funds: Float!
+  date: AWSDateTime
 }
 
 type User @model {
