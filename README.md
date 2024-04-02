@@ -19,7 +19,7 @@ npm install -g @aws-amplify/cli
 ### Once Amplify is installed you will need to pull the data:
 cd [project-dir]
 
-amplify pull --appId d2dg0hd0px3svb --envName dev
+amplify pull --appId d2dg0hd0px3svb --envName devan
 
 amplify init
 
