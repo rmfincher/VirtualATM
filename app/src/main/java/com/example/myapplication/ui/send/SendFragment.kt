@@ -250,7 +250,7 @@ class SendFragment : Fragment() {
 
         Amplify.DataStore.query(
             Transaction::class.java,
-            Where.matches(Transaction.date.eq(currentDate)),
+            Where.matches(Transaction.DATE.eq(currentDate)),
             { result ->
                 while (result.hasNext()) {
                     val transaction = result.next()

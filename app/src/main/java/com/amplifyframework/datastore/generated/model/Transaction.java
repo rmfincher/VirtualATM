@@ -25,10 +25,12 @@ public final class Transaction implements Model {
   public static final QueryField SENDER_USERNAME = field("Transaction", "senderUsername");
   public static final QueryField RECIPIENT_USERNAME = field("Transaction", "recipientUsername");
   public static final QueryField FUNDS = field("Transaction", "funds");
+  public static final QueryField DATE = field("Transaction", "date");
   private final @ModelField(targetType="ID", isRequired = true) String id;
   private final @ModelField(targetType="String", isRequired = true) String senderUsername;
   private final @ModelField(targetType="String", isRequired = true) String recipientUsername;
   private final @ModelField(targetType="Float", isRequired = true) Double funds;
+  private final @ModelField(targetType="AWSDateTime") Temporal.DateTime date;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime createdAt;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime updatedAt;
   /** @deprecated This API is internal to Amplify and should not be used. */
@@ -53,6 +55,10 @@ public final class Transaction implements Model {
       return funds;
   }
   
+  public Temporal.DateTime getDate() {
+      return date;
+  }
+  
   public Temporal.DateTime getCreatedAt() {
       return createdAt;
   }
@@ -61,11 +67,12 @@ public final class Transaction implements Model {
       return updatedAt;
   }
   
-  private Transaction(String id, String senderUsername, String recipientUsername, Double funds) {
+  private Transaction(String id, String senderUsername, String recipientUsername, Double funds, Temporal.DateTime date) {
     this.id = id;
     this.senderUsername = senderUsername;
     this.recipientUsername = recipientUsername;
     this.funds = funds;
+    this.date = date;
   }
   
   @Override
@@ -80,6 +87,7 @@ public final class Transaction implements Model {
               ObjectsCompat.equals(getSenderUsername(), transaction.getSenderUsername()) &&
               ObjectsCompat.equals(getRecipientUsername(), transaction.getRecipientUsername()) &&
               ObjectsCompat.equals(getFunds(), transaction.getFunds()) &&
+              ObjectsCompat.equals(getDate(), transaction.getDate()) &&
               ObjectsCompat.equals(getCreatedAt(), transaction.getCreatedAt()) &&
               ObjectsCompat.equals(getUpdatedAt(), transaction.getUpdatedAt());
       }
@@ -92,6 +100,7 @@ public final class Transaction implements Model {
       .append(getSenderUsername())
       .append(getRecipientUsername())
       .append(getFunds())
+      .append(getDate())
       .append(getCreatedAt())
       .append(getUpdatedAt())
       .toString()
@@ -106,6 +115,7 @@ public final class Transaction implements Model {
       .append("senderUsername=" + String.valueOf(getSenderUsername()) + ", ")
       .append("recipientUsername=" + String.valueOf(getRecipientUsername()) + ", ")
       .append("funds=" + String.valueOf(getFunds()) + ", ")
+      .append("date=" + String.valueOf(getDate()) + ", ")
       .append("createdAt=" + String.valueOf(getCreatedAt()) + ", ")
       .append("updatedAt=" + String.valueOf(getUpdatedAt()))
       .append("}")
@@ -129,6 +139,7 @@ public final class Transaction implements Model {
       id,
       null,
       null,
+      null,
       null
     );
   }
@@ -137,7 +148,8 @@ public final class Transaction implements Model {
     return new CopyOfBuilder(id,
       senderUsername,
       recipientUsername,
-      funds);
+      funds,
+      date);
   }
   public interface SenderUsernameStep {
     RecipientUsernameStep senderUsername(String senderUsername);
@@ -157,6 +169,7 @@ public final class Transaction implements Model {
   public interface BuildStep {
     Transaction build();
     BuildStep id(String id);
+    BuildStep date(Temporal.DateTime date);
   }
   
 
@@ -165,15 +178,17 @@ public final class Transaction implements Model {
     private String senderUsername;
     private String recipientUsername;
     private Double funds;
+    private Temporal.DateTime date;
     public Builder() {
       
     }
     
-    private Builder(String id, String senderUsername, String recipientUsername, Double funds) {
+    private Builder(String id, String senderUsername, String recipientUsername, Double funds, Temporal.DateTime date) {
       this.id = id;
       this.senderUsername = senderUsername;
       this.recipientUsername = recipientUsername;
       this.funds = funds;
+      this.date = date;
     }
     
     @Override
@@ -184,7 +199,8 @@ public final class Transaction implements Model {
           id,
           senderUsername,
           recipientUsername,
-          funds);
+          funds,
+          date);
     }
     
     @Override
@@ -208,6 +224,12 @@ public final class Transaction implements Model {
         return this;
     }
     
+    @Override
+     public BuildStep date(Temporal.DateTime date) {
+        this.date = date;
+        return this;
+    }
+    
     /**
      * @param id id
      * @return Current Builder instance, for fluent method chaining
@@ -220,8 +242,8 @@ public final class Transaction implements Model {
   
 
   public final class CopyOfBuilder extends Builder {
-    private CopyOfBuilder(String id, String senderUsername, String recipientUsername, Double funds) {
-      super(id, senderUsername, recipientUsername, funds);
+    private CopyOfBuilder(String id, String senderUsername, String recipientUsername, Double funds, Temporal.DateTime date) {
+      super(id, senderUsername, recipientUsername, funds, date);
       Objects.requireNonNull(senderUsername);
       Objects.requireNonNull(recipientUsername);
       Objects.requireNonNull(funds);
@@ -240,6 +262,11 @@ public final class Transaction implements Model {
     @Override
      public CopyOfBuilder funds(Double funds) {
       return (CopyOfBuilder) super.funds(funds);
+    }
+    
+    @Override
+     public CopyOfBuilder date(Temporal.DateTime date) {
+      return (CopyOfBuilder) super.date(date);
     }
   }
   
