@@ -17,12 +17,6 @@
       },
       "auth": {
         "virtualatm79da7402": {}
-      },
-      "function": {
-        "locationcheck": {
-          "deploymentBucketName": "amplify-virtualatm-dev-214018-deployment",
-          "s3Key": "amplify-builds/locationcheck-43784846666178707949-build.zip"
-        }
       }
     }
   }

@@ -16,7 +16,9 @@ import com.example.myapplication.databinding.ActivityMainBinding
 import android.util.Log
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
+import com.amplifyframework.hub.HubChannel
 import com.example.myapplication.ui.SharedViewModel
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -99,6 +101,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        Amplify.DataStore.clear(
+            { Log.i("MyAmplifyApp", "DataStore is cleared") },
+            { Log.e("MyAmplifyApp", "Failed to clear DataStore") }
+        )
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

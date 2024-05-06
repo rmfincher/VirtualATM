@@ -63,6 +63,8 @@ class SendFragment : Fragment() {
         val sendButton: Button = root.findViewById(R.id.buttonSend)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
+        val longitudeEditText: EditText = root.findViewById(R.id.editTextLongitude)
+        val latitudeEditText: EditText = root.findViewById(R.id.editTextLatitude)
 
         sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
             Log.i("SendFragment", "Balance updated: $newBalance")
@@ -106,6 +108,10 @@ class SendFragment : Fragment() {
             val recipientUsername = recipientEditText.text.toString()
             val fundsAmountText = fundsEditText.text.toString()
 
+            // Update Dropoff Coordinates
+            val userLongitude = longitudeEditText.text.toString().toDouble()
+            val userLatitude = latitudeEditText.text.toString().toDouble()
+
             // Check if fundsAmountText is not empty before attempting conversion
             if (fundsAmountText.isNotEmpty()) {
                 try {
@@ -127,6 +133,7 @@ class SendFragment : Fragment() {
                         }
                     )
 
+                    /*
                     // Update Recipient balance data
                     Amplify.DataStore.query(
                         User::class.java,
@@ -170,8 +177,8 @@ class SendFragment : Fragment() {
                             Log.e("Amplify", "Error querying Recipient", error)
                         }
                     )
-
-                    // update user balance data
+*/
+                    // update currenet user (sender) location data
                     Amplify.DataStore.query(
                         User::class.java,
                         Where.matches(User.USERNAME.eq(currentUsername)),
@@ -179,15 +186,17 @@ class SendFragment : Fragment() {
                             if (result.hasNext()) {
                                 val user1 = result.next()
 
-                                // Access user data
+                                // Access sender username
                                 val user1Name = user1.username
                                 val userFunds = user1.funds
 
                                 Log.i("Amplify", "Retrieved User Username before transfer: $user1Name")
                                 Log.i("Amplify", "Retrieved User Funds before transfer: $userFunds")
 
+
                                 // Update userFunds based on the fundsAmount
                                 val newUserFunds = userFunds - fundsAmount
+
 
                                 try {
                                     sharedViewModel.updateBalance(newUserFunds)
@@ -195,22 +204,22 @@ class SendFragment : Fragment() {
                                     Log.e("HomeFragment", "Error updating balance", e)
                                 }
 
+                                // update user with location data
                                 val updatedUser = user1.copyOfBuilder()
                                     .funds(newUserFunds)
+                                    .longitude(userLongitude)
+                                    .latitude(userLatitude)
                                     .build()
 
                                 Amplify.DataStore.save(
                                     updatedUser,
                                     { success ->
-                                        Log.i("Amplify", "Updated User Funds: $newUserFunds")
+                                        Log.i("Amplify", "Updated Sender data: $success")
                                     },
                                     { error ->
-                                        Log.e("Amplify", "Error updating User Funds", error)
+                                        Log.e("Amplify", "Error updating Sender Location", error)
                                     }
                                 )
-
-                                // Log the updated user funds
-                                Log.i("Amplify", "Updated User Funds: $newUserFunds")
 
                             } else {
                                 Log.i("Amplify", "User not found")
@@ -220,6 +229,8 @@ class SendFragment : Fragment() {
                             Log.e("Amplify", "Error querying User", error)
                         }
                     )
+
+
 
 
                 } catch (e: NumberFormatException) {
