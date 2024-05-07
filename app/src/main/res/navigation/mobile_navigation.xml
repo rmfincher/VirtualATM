@@ -14,7 +14,7 @@
     <fragment
         android:id="@+id/nav_deposit"
         android:name="com.example.myapplication.ui.deposit.DepositFragment"
-        android:label="@string/menu_deposit"
+        android:label="Profile"
         tools:layout="@layout/fragment_deposit" />
 
     <fragment
