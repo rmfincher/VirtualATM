@@ -73,7 +73,7 @@ class SendFragment : Fragment() {
 
         // Refresh button to observe funds amount while still on page
         refreshButton.setOnClickListener {
-            sharedViewModel.fetchUserFunds(currentUsername)
+            // sharedViewModel.fetchUserFunds(currentUsername)
 
             sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
                 Log.i("SendFragment", "Balance updated: $newBalance")

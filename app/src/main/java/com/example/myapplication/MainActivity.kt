@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.databinding.ActivityMainBinding
 import android.util.Log
+import com.amplifyframework.api.graphql.model.ModelSubscription
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.datastore.generated.model.User
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
@@ -30,8 +31,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -63,6 +62,21 @@ class MainActivity : AppCompatActivity() {
                 is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
                     // Sign Out completed fully and without errors.
                     Log.i("AuthQuickStart", "Signed out successfully")
+
+                    // Use subscription to update user balance
+                    val subscription = Amplify.API.subscribe(
+                        ModelSubscription.onCreate(User::class.java),
+                        { Log.i("ApiQuickStart", "Subscription established") },
+                        { subscriptionEvent ->
+                            val createdUser = subscriptionEvent.data as User
+                            Log.i("ApiQuickStart", "User create subscription received: ${createdUser.username}")
+                            sharedViewModel.updateBalance(subscriptionEvent.data.funds)
+                        },
+                        { error ->
+                            Log.e("ApiQuickStart", "Subscription failed", error)
+                        },
+                        { Log.i("ApiQuickStart", "Subscription completed") }
+                    )
                 }
 
                 is AWSCognitoAuthSignOutResult.PartialSignOut -> {
@@ -101,6 +115,8 @@ class MainActivity : AppCompatActivity() {
             }
         )
     }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

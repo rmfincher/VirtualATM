@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.amplifyframework.api.graphql.model.ModelSubscription
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.core.model.query.Where
 import com.amplifyframework.datastore.generated.model.User
@@ -49,6 +50,28 @@ class SharedViewModel : ViewModel() {
                 Log.e("Amplify", "Error querying User", error)
             }
         )
+    }
+
+    fun subscribeUser(name: String) {
+        val subscription = Amplify.API.subscribe(
+            ModelSubscription.onCreate(User::class.java),
+            { Log.i("ApiQuickStart", "Subscription established") },
+            { subscriptionEvent ->
+                val createdUser = subscriptionEvent.data as User
+                if (createdUser.username == name) {
+                    // Process the user object
+                    Log.i("ApiQuickStart", "User create subscription received: ${createdUser.username}")
+                }
+            },
+            { error ->
+                Log.e("ApiQuickStart", "Subscription failed", error)
+            },
+            { Log.i("ApiQuickStart", "Subscription completed") }
+        )
+
+// Cancel the subscription listener when you're finished with it
+
+
     }
 
     // function to update username
