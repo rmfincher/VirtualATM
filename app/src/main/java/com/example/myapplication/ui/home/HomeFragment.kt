@@ -170,9 +170,6 @@ class HomeFragment : Fragment() {
                         try {
                             sharedViewModel.updateUsername(usernameEditText.text.toString())
 
-                            sharedViewModel.subscribeUser(usernameEditText.toString())
-
-
                         } catch (e: Exception) {
                             Log.e("HomeFragment", "Error subscribing user", e)
                         }

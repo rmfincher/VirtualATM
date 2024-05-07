@@ -62,21 +62,6 @@ class MainActivity : AppCompatActivity() {
                 is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
                     // Sign Out completed fully and without errors.
                     Log.i("AuthQuickStart", "Signed out successfully")
-
-                    // Use subscription to update user balance
-                    val subscription = Amplify.API.subscribe(
-                        ModelSubscription.onCreate(User::class.java),
-                        { Log.i("ApiQuickStart", "Subscription established") },
-                        { subscriptionEvent ->
-                            val createdUser = subscriptionEvent.data as User
-                            Log.i("ApiQuickStart", "User create subscription received: ${createdUser.username}")
-                            sharedViewModel.updateBalance(subscriptionEvent.data.funds)
-                        },
-                        { error ->
-                            Log.e("ApiQuickStart", "Subscription failed", error)
-                        },
-                        { Log.i("ApiQuickStart", "Subscription completed") }
-                    )
                 }
 
                 is AWSCognitoAuthSignOutResult.PartialSignOut -> {
@@ -114,6 +99,28 @@ class MainActivity : AppCompatActivity() {
                 Log.e("MainActivity", "Dummy query failed", error)
             }
         )
+
+        // Use subscription to update user balance
+        val subscription = Amplify.API.subscribe(
+            ModelSubscription.onCreate(User::class.java),
+            { Log.i("ApiQuickStart", "Subscription established") },
+            { subscriptionEvent ->
+                val createdUser = subscriptionEvent.data as User
+                Log.i("ApiQuickStart", "User create subscription received: ${createdUser.username}")
+
+                try{
+                    sharedViewModel.updateBalance(subscriptionEvent.data.funds)
+                } catch (e: Exception) {
+                    Log.e("Subscription", "Error updating user balance from subscription")
+                }
+
+            },
+            { error ->
+                Log.e("ApiQuickStart", "Subscription failed", error)
+            },
+            { Log.i("ApiQuickStart", "Subscription completed") }
+        )
+
     }
 
 

@@ -68,6 +68,20 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/buttonClearCache"
+        android:layout_width="58dp"
+        android:layout_height="61dp"
+        android:layout_marginStart="333dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:foreground="?android:attr/windowSplashScreenIconBackgroundColor"
+        app:icon="@android:drawable/ic_menu_delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/buttonRefresh"
         android:layout_width="58dp"
         android:layout_height="61dp"

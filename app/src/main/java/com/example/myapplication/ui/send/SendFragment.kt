@@ -65,22 +65,26 @@ class SendFragment : Fragment() {
         }
 
         val sendButton: Button = root.findViewById(R.id.buttonSend)
+        val clearCacheButton: Button = root.findViewById(R.id.buttonClearCache)
         val refreshButton: Button = root.findViewById(R.id.buttonRefresh)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
         val longitudeEditText: EditText = root.findViewById(R.id.editTextLongitude)
         val latitudeEditText: EditText = root.findViewById(R.id.editTextLatitude)
 
-        // Refresh button to observe funds amount while still on page
-        refreshButton.setOnClickListener {
-            // sharedViewModel.fetchUserFunds(currentUsername)
+        // Clear cache button to clear the local cache
+        clearCacheButton.setOnClickListener {
 
-            sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
-                Log.i("SendFragment", "Balance updated: $newBalance")
-                // Update UI with the new balance value
-                val formattedBalance = DecimalFormat("#.##").format(newBalance)
-                binding.TextShowBalance.text = formattedBalance
-            }
+            Amplify.DataStore.clear(
+                { Log.i("MyApp", "DataStore cache cleared") },
+                { error -> Log.e("MyApp", "Failed to clear DataStore cache", error) }
+            )
+        }
+
+        // Refresh button to sync local with remote DB and fetchUserFunds - USER MUST PRESS TWICE
+        refreshButton.setOnClickListener {
+
+            sharedViewModel.fetchUserFunds(currentUsername)
         }
 
         // Loads current user's username
