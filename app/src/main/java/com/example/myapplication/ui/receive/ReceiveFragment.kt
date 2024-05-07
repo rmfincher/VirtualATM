@@ -34,7 +34,7 @@ class ReceiveFragment : Fragment() {
         receiveViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
-
+/*
         // Observe latitude and longitude
         receiveViewModel.latitude.observe(viewLifecycleOwner) { latitude ->
             binding.latitudeTextView.text = latitude.toString()
@@ -62,7 +62,7 @@ class ReceiveFragment : Fragment() {
             // Permission granted, get location
             requestLocation()
         }
-
+*/
         return root
     }
 
@@ -70,7 +70,7 @@ class ReceiveFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+/*
     private fun requestLocation() {
         // Check if permissions are granted
         if (ContextCompat.checkSelfPermission(
@@ -92,5 +92,5 @@ class ReceiveFragment : Fragment() {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
-    }
+    }*/
 }

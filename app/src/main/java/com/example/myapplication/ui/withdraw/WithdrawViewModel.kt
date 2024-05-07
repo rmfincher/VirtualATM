@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 class WithdrawViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is the Withdraw Fragment"
+        value = "Receive your funds by going to the drop-off coordinates"
     }
     val text: LiveData<String> = _text
 

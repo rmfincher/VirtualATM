@@ -9,6 +9,6 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_deposit">Deposit</string>
-    <string name="menu_withdraw">Withdraw</string>
+    <string name="menu_withdraw">Receive</string>
     <string name="menu_send">Send</string>
 </resources>

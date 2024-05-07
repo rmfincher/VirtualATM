@@ -13,16 +13,16 @@
             android:icon="@drawable/ic_menu_deposit"
             android:title="@string/menu_deposit" />
         <item
-            android:id="@+id/nav_withdraw"
+            android:id="@+id/nav_receive"
             android:icon="@drawable/ic_menu_withdraw"
-            android:title="@string/menu_withdraw" />
+            android:title="Withdraw" />
         <item
             android:id="@+id/nav_send"
             android:icon="@drawable/baseline_send_to_mobile_24"
             android:title="@string/menu_send" />
         <item
-            android:id="@+id/nav_receive"
+            android:id="@+id/nav_withdraw"
             android:icon="@drawable/baseline_call_received_24"
-            android:title="Receive" />
+            android:title="@string/menu_withdraw" />
     </group>
 </menu>
