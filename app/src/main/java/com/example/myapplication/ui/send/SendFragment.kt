@@ -85,6 +85,13 @@ class SendFragment : Fragment() {
         refreshButton.setOnClickListener {
 
             sharedViewModel.fetchUserFunds(currentUsername)
+
+            sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
+                Log.i("SendFragment", "Balance updated: $newBalance")
+                // Update UI with the new balance value
+                val formattedBalance = DecimalFormat("#.##").format(newBalance)
+                binding.TextShowBalance.text = formattedBalance
+            }
         }
 
         // Loads current user's username
