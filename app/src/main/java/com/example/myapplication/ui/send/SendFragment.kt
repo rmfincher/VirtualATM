@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.send
 
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -16,11 +17,14 @@ import com.amplifyframework.datastore.generated.model.Transaction
 import com.amplifyframework.datastore.generated.model.User
 import com.amplifyframework.core.Amplify
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.amplifyframework.core.model.query.Where
 import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.ui.SharedViewModel
 import com.example.myapplication.ui.home.HomeViewModel
 import java.text.DecimalFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class SendFragment : Fragment() {
 
@@ -61,22 +65,30 @@ class SendFragment : Fragment() {
         }
 
         val sendButton: Button = root.findViewById(R.id.buttonSend)
+        val refreshButton: Button = root.findViewById(R.id.buttonRefresh)
         val recipientEditText: EditText = root.findViewById(R.id.editTextRecipient)
         val fundsEditText: EditText = root.findViewById(R.id.editTextFunds)
         val longitudeEditText: EditText = root.findViewById(R.id.editTextLongitude)
         val latitudeEditText: EditText = root.findViewById(R.id.editTextLatitude)
 
-        sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
-            Log.i("SendFragment", "Balance updated: $newBalance")
-            // Update UI with the new balance value
-            val formattedBalance = DecimalFormat("#.##").format(newBalance)
-            binding.TextShowBalance.text = formattedBalance
+        // Refresh button to observe funds amount while still on page
+        refreshButton.setOnClickListener {
+            sharedViewModel.fetchUserFunds(currentUsername)
+
+            sharedViewModel.balance.observe(viewLifecycleOwner) { newBalance ->
+                Log.i("SendFragment", "Balance updated: $newBalance")
+                // Update UI with the new balance value
+                val formattedBalance = DecimalFormat("#.##").format(newBalance)
+                binding.TextShowBalance.text = formattedBalance
+            }
         }
 
+        // Loads current user's username
         sharedViewModel.username.observe(viewLifecycleOwner) { newUsername ->
             Log.i("SendFragment", "Username Observed: $newUsername")
 
             currentUsername = newUsername
+            // sharedViewModel.fetchUserFunds(currentUsername)
         }
 
         sendButton.setOnClickListener {
@@ -104,11 +116,11 @@ class SendFragment : Fragment() {
                 }
             )
 
-            // Update Recipient balance data
+            // Store transaction data
             val recipientUsername = recipientEditText.text.toString()
             val fundsAmountText = fundsEditText.text.toString()
 
-            // Update Dropoff Coordinates
+            // Store Drop-off Coordinates
             val userLongitude = longitudeEditText.text.toString().toDouble()
             val userLatitude = latitudeEditText.text.toString().toDouble()
 
@@ -133,52 +145,7 @@ class SendFragment : Fragment() {
                         }
                     )
 
-                    /*
-                    // Update Recipient balance data
-                    Amplify.DataStore.query(
-                        User::class.java,
-                        Where.matches(User.USERNAME.eq(recipientUsername)),
-                        { result ->
-                            if (result.hasNext()) {
-                                val recipientUser = result.next()
-
-                                // Access user data
-                                val recipUsername = recipientUser.username
-                                val recipientFunds = recipientUser.funds
-
-                                Log.i("Amplify", "Retrieved Recipient Username before transfer: $recipUsername")
-                                Log.i("Amplify", "Retrieved Recipient Funds before transfer: $recipientFunds")
-
-                                // Update recipientFunds based on the fundsAmount
-                                val newRecipientFunds = recipientFunds + fundsAmount
-
-                                val updatedRecipientUser = recipientUser.copyOfBuilder()
-                                    .funds(newRecipientFunds)
-                                    .build()
-
-                                Amplify.DataStore.save(
-                                    updatedRecipientUser,
-                                    { success ->
-                                        Log.i("Amplify", "Updated Recipient Funds: $newRecipientFunds")
-                                    },
-                                    { error ->
-                                        Log.e("Amplify", "Error updating Recipient Funds", error)
-                                    }
-                                )
-
-                                // Log the updated recipient funds
-                                Log.i("Amplify", "Updated Recipient Funds: $newRecipientFunds")
-
-                            } else {
-                                Log.i("Amplify", "Recipient not found")
-                            }
-                        },
-                        { error ->
-                            Log.e("Amplify", "Error querying Recipient", error)
-                        }
-                    )
-*/
-                    // update currenet user (sender) location data
+                    // Update current user (sender) location data
                     Amplify.DataStore.query(
                         User::class.java,
                         Where.matches(User.USERNAME.eq(currentUsername)),
@@ -188,25 +155,11 @@ class SendFragment : Fragment() {
 
                                 // Access sender username
                                 val user1Name = user1.username
-                                val userFunds = user1.funds
 
                                 Log.i("Amplify", "Retrieved User Username before transfer: $user1Name")
-                                Log.i("Amplify", "Retrieved User Funds before transfer: $userFunds")
-
-
-                                // Update userFunds based on the fundsAmount
-                                val newUserFunds = userFunds - fundsAmount
-
-
-                                try {
-                                    sharedViewModel.updateBalance(newUserFunds)
-                                } catch (e: Exception) {
-                                    Log.e("HomeFragment", "Error updating balance", e)
-                                }
 
                                 // update user with location data
                                 val updatedUser = user1.copyOfBuilder()
-                                    .funds(newUserFunds)
                                     .longitude(userLongitude)
                                     .latitude(userLatitude)
                                     .build()
@@ -214,7 +167,7 @@ class SendFragment : Fragment() {
                                 Amplify.DataStore.save(
                                     updatedUser,
                                     { success ->
-                                        Log.i("Amplify", "Updated Sender data: $success")
+                                        Log.i("Amplify", "Updated Sender location: $success")
                                     },
                                     { error ->
                                         Log.e("Amplify", "Error updating Sender Location", error)

@@ -19,6 +19,11 @@ class MyAmplifyApp : Application() {
             Amplify.configure(applicationContext)
 
             Log.i("Tutorial", "Initialized Amplify")
+
+            Amplify.DataStore.clear(
+                { Log.i("MyApp", "DataStore cache cleared") },
+                { error -> Log.e("MyApp", "Failed to clear DataStore cache", error) }
+            )
         } catch (error: AmplifyException) {
             Log.e("Tutorial", "Could not initialize Amplify", error)
         }

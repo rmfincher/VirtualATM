@@ -19,6 +19,7 @@ import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.core.model.query.Where
 import com.amplifyframework.datastore.generated.model.User
 import com.example.myapplication.ui.SharedViewModel
+import android.os.Handler
 
 class HomeFragment : Fragment() {
 
@@ -177,36 +178,6 @@ class HomeFragment : Fragment() {
                     }
                 },
                 { Log.e("AuthQuickstart", "Failed to sign in", it) }
-            )
-
-            // query for user and show balance on screen
-            Amplify.DataStore.query(
-                User::class.java,
-                Where.matches(User.USERNAME.eq(usernameEditText.text.toString())),
-                { result ->
-                    if (result.hasNext()) {
-                        val user = result.next()
-
-                        // Access user data
-                        val username = user.username
-                        val funds = user.funds
-
-                        Log.i("Amplify", "Retrieved User Username: $username")
-                        Log.i("Amplify", "User Funds: $funds")
-
-                        // update sharedViewModel with new balance to use in SendFragment
-                        try {
-                            sharedViewModel.updateBalance(funds)
-                        } catch (e: Exception) {
-                            Log.e("HomeFragment", "Error updating balance", e)
-                        }
-                    } else {
-                        Log.i("Amplify", "User not found")
-                    }
-                },
-                { error ->
-                    Log.e("Amplify", "Error querying User", error)
-                }
             )
         }
 

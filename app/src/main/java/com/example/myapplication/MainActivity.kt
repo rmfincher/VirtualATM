@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.databinding.ActivityMainBinding
 import android.util.Log
 import com.amplifyframework.core.Amplify
+import com.amplifyframework.datastore.generated.model.User
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.hub.HubChannel
 import com.example.myapplication.ui.SharedViewModel
@@ -30,21 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Amplify.Auth.fetchAuthSession(
-            { result ->
-                if (result.isSignedIn) {
-                    // User is signed in, handle accordingly
-                    Log.i("Auth", "User is signed in")
-                } else {
-                    // User is not signed in, proceed with your logic
-                    Log.i("Auth", "User is NOT signed in")
 
-                }
-            },
-            { error ->
-                // Handle the error
-            }
-        )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -102,11 +89,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        Amplify.DataStore.clear(
-            { Log.i("MyAmplifyApp", "DataStore is cleared") },
-            { Log.e("MyAmplifyApp", "Failed to clear DataStore") }
+        // Perform a dummy DataStore operation to trigger synchronization
+        Amplify.DataStore.query(User::class.java,
+            { result ->
+                // Dummy query successful, synchronization triggered
+                Log.i("MainActivity", "Dummy query successful")
+            },
+            { error ->
+                // Dummy query failed
+                Log.e("MainActivity", "Dummy query failed", error)
+            }
         )
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

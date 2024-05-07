@@ -56,13 +56,27 @@
         android:id="@+id/TextShowBalance"
         android:layout_width="149dp"
         android:layout_height="63dp"
+        android:layout_marginStart="174dp"
         android:layout_marginTop="216dp"
-        android:layout_marginEnd="16dp"
-        android:textAlignment="center"
+        android:layout_marginEnd="88dp"
         android:text="0"
+        android:textAlignment="center"
         android:textColor="#8BC34A"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonRefresh"
+        android:layout_width="58dp"
+        android:layout_height="61dp"
+        android:layout_marginStart="333dp"
+        android:layout_marginTop="205dp"
+        android:layout_marginEnd="20dp"
+        android:foreground="@android:drawable/ic_popup_sync"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
@@ -82,16 +96,6 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="392dp"
         android:hint="Enter Funds to send"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextCoords"
-        android:layout_width="389dp"
-        android:layout_height="76dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="476dp"
-        android:hint="Enter coordinates to send"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
